@@ -24,16 +24,16 @@ GLUCMT-Y4GA es un proyecto desarrollado con React Native (Expo) que integra un d
 A continuación, se muestra el diseño de la aplicación:
 
 <div align="center">
-  <img src="./assets/screenshots/dashboard.jpg" width="200" alt="Dashboard" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="./assets/screenshots/history.jpg" width="200" alt="Historial Médico" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="./assets/screenshots/diet.jpg" width="200" alt="Dieta" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="./assets/screenshots/profile.jpg" width="200" alt="Perfil Médico" />
+  <img src="./assets/screenshots/screen1.jpg" width="180" alt="Pantalla 1" />
+  &nbsp;
+  <img src="./assets/screenshots/screen2.jpg" width="180" alt="Pantalla 2" />
+  &nbsp;
+  <img src="./assets/screenshots/screen3.jpg" width="180" alt="Pantalla 3" />
+  &nbsp;
+  <img src="./assets/screenshots/screen4.jpg" width="180" alt="Pantalla 4" />
+  &nbsp;
+  <img src="./assets/screenshots/screen5.jpg" width="180" alt="Pantalla 5" />
 </div>
-
-> **Nota:** Reemplaza estas imágenes subiendo tus propias capturas a la carpeta `assets/screenshots/` con los nombres mencionados arriba.
 
 ---
 
