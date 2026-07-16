@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, PermissionsAndroid, Platform } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../utils/store';
 import { bleService } from '../utils/bleManager';
 
@@ -28,95 +29,128 @@ export default function BluetoothScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={styles.header}>
         <Text style={styles.title}>Vincular Glucómetro</Text>
         <Text style={styles.subtitle}>Conecta tu dispositivo vía Bluetooth</Text>
       </View>
 
-      <View style={styles.card}>
+      <View style={styles.statusContainer}>
+        <View style={[styles.statusCircle, isConnected ? styles.statusConnected : styles.statusDisconnected]}>
+          <Text style={styles.statusIcon}>{isConnected ? '🔗' : '📡'}</Text>
+        </View>
         <Text style={styles.statusText}>
-          Estado: {isConnected ? '✅ Conectado' : '❌ Desconectado'}
-        </Text>
-        <Text style={styles.infoText}>
-          Asegúrate de que el glucómetro/baumanómetro esté encendido.
+          {isConnected ? 'Dispositivo Conectado' : 'Dispositivo Desconectado'}
         </Text>
       </View>
 
-      <TouchableOpacity 
-        style={[styles.bigButton, isConnected ? styles.buttonRed : styles.buttonTeal]} 
-        onPress={startRealScan}
-      >
-        <Text style={styles.buttonText}>
-          {isConnected ? 'Escaneando...' : '🔗 Buscar Dispositivos Físicos'}
-        </Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+      <View style={styles.buttonContainer}>
+        {isConnected ? (
+          <TouchableOpacity style={styles.buttonSecondary} onPress={() => setConnected(false)}>
+            <Text style={styles.buttonTextSecondary}>Desconectar</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.buttonPrimary} onPress={startRealScan}>
+            <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
+              <Text style={styles.buttonTextPrimary}>Escanear y Conectar</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
+      </View>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F6F9',
-    padding: 20,
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    marginBottom: 40,
+    padding: 24,
+    alignItems: 'center',
     marginTop: 20,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#0A2540',
+    color: '#0F2027',
   },
   subtitle: {
-    fontSize: 18,
-    color: '#6E7A8A',
-    marginTop: 10,
+    fontSize: 16,
+    color: '#64748B',
+    marginTop: 5,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: 30,
-    borderRadius: 20,
-    marginBottom: 40,
+  statusContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  statusCircle: {
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    borderWidth: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 3,
-    alignItems: 'center',
-  },
-  statusText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#2D3748',
-    marginBottom: 15,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#A0AEC0',
-    textAlign: 'center',
-  },
-  bigButton: {
-    paddingVertical: 24,
-    borderRadius: 20,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.1,
     shadowRadius: 10,
     elevation: 5,
   },
-  buttonTeal: {
-    backgroundColor: '#34C759',
+  statusDisconnected: {
+    borderColor: '#E2E8F0',
+    backgroundColor: '#F8FAFC',
   },
-  buttonRed: {
-    backgroundColor: '#FF3B30',
+  statusConnected: {
+    borderColor: '#0575E6',
+    backgroundColor: '#EFF6FF',
   },
-  buttonText: {
-    fontSize: 22,
-    fontWeight: '700',
+  statusIcon: {
+    fontSize: 60,
+  },
+  statusText: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#0F2027',
+  },
+  buttonContainer: {
+    padding: 24,
+    paddingBottom: 40,
+  },
+  buttonPrimary: {
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+    overflow: 'hidden',
+  },
+  gradient: {
+    paddingVertical: 18,
+    alignItems: 'center',
+  },
+  buttonTextPrimary: {
     color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
+  buttonSecondary: {
+    backgroundColor: '#F1F5F9',
+    paddingVertical: 18,
+    borderRadius: 24,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  buttonTextSecondary: {
+    color: '#64748B',
+    fontSize: 18,
+    fontWeight: 'bold',
+  }
 });

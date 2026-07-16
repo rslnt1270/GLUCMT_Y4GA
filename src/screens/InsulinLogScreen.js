@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 // import { collection, addDoc } from 'firebase/firestore';
 // import { db } from '../utils/firebaseConfig';
 
@@ -29,59 +30,70 @@ export default function InsulinLogScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Registrar Insulina</Text>
-        <Text style={styles.subtitle}>¿Cuántas unidades te inyectaste?</Text>
-      </View>
+    <View style={styles.container}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Registrar Insulina</Text>
+          <Text style={styles.subtitle}>¿Cuántas unidades te inyectaste?</Text>
+        </View>
 
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          placeholder="0"
-          value={dose}
-          onChangeText={setDose}
-          maxLength={3}
-        />
-        <Text style={styles.unitText}>Unidades</Text>
-      </View>
+        <View style={styles.inputSection}>
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              placeholder="0"
+              placeholderTextColor="#CBD5E0"
+              value={dose}
+              onChangeText={setDose}
+              maxLength={3}
+            />
+            <Text style={styles.unitText}>Unidades</Text>
+          </View>
+        </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>💾 Guardar Registro</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+          <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
+            <Text style={styles.saveButtonText}>💾 Guardar Registro</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F6F9',
-    padding: 20,
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    marginBottom: 40,
-    marginTop: 20,
+    padding: 24,
+    paddingTop: 10,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#0A2540',
+    color: '#0F2027',
   },
   subtitle: {
-    fontSize: 18,
-    color: '#6E7A8A',
-    marginTop: 10,
+    fontSize: 16,
+    color: '#64748B',
+    marginTop: 5,
   },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  inputSection: {
+    flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 40,
+    alignItems: 'center',
+  },
+  inputWrapper: {
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    padding: 40,
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.05,
@@ -89,34 +101,36 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   input: {
-    fontSize: 64,
+    fontSize: 80,
     fontWeight: 'bold',
-    color: '#2D3748',
-    marginRight: 15,
+    color: '#0575E6',
     textAlign: 'center',
-    minWidth: 100,
-    borderBottomWidth: 2,
-    borderBottomColor: '#007AFF',
+    minWidth: 150,
   },
   unitText: {
-    fontSize: 24,
-    color: '#A0AEC0',
+    fontSize: 20,
+    color: '#64748B',
     fontWeight: '600',
+    marginTop: 10,
   },
   saveButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 24,
-    borderRadius: 20,
-    alignItems: 'center',
+    margin: 24,
+    borderRadius: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 5,
+    overflow: 'hidden',
+  },
+  gradient: {
+    paddingVertical: 18,
+    alignItems: 'center',
   },
   saveButtonText: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 18,
+    fontWeight: 'bold',
     color: '#FFFFFF',
-  },
+    textTransform: 'uppercase',
+  }
 });

@@ -122,6 +122,55 @@ class BLEService {
         const rawData = characteristic.value;
         console.log(`Dato crudo recibido de ${type}:`, rawData);
 
+        if (type === 'GLUCOSE') {
+          try {
+            const { Buffer } = require('buffer');
+            const buf = Buffer.from(rawData, 'base64');
+            
+            // Estándar GATT de Glucosa: 
+            // Byte 0: Flags (8 bits)
+            // Byte 1-2: Sequence Number
+            // Byte 3-9: Base Time
+            const flags = buf.readUInt8(0);
+            
+            const timeOffsetPresent = (flags & 0x01) > 0;
+            const concentrationPresent = (flags & 0x02) > 0;
+            // 0 = kg/L, 1 = mol/L
+            const isMolPerL = (flags & 0x04) > 0;
+
+            if (concentrationPresent) {
+              let offset = 10; // Inicio después del Base Time
+              if (timeOffsetPresent) offset += 2;
+
+              // La concentración viene en formato SFLOAT (16 bits) IEEE-11073
+              const rawConcentration = buf.readUInt16LE(offset);
+              const mantissa = rawConcentration & 0x0FFF;
+              const expRaw = rawConcentration >> 12;
+              const exponent = expRaw >= 8 ? expRaw - 16 : expRaw;
+              
+              let glucoseValue = mantissa * Math.pow(10, exponent);
+
+              // Convertimos a la medida universal mg/dL
+              if (!isMolPerL) {
+                // kg/L a mg/dL (1 kg/L = 100,000 mg/dL)
+                glucoseValue = glucoseValue * 100000;
+              } else {
+                // mol/L a mg/dL (1 mol/L = 18.0182 * 1000 mg/dL)
+                glucoseValue = glucoseValue * 18018.2;
+              }
+
+              const finalValue = Math.round(glucoseValue);
+              if (finalValue > 0 && finalValue < 1000) {
+                console.log(`¡LECTURA DE GLUCOSA DESCIFRADA! Nivel: ${finalValue} mg/dL`);
+                useAppStore.getState().setLastGlucoseReading(finalValue);
+                // Si Firebase estuviera activo: saveReadingToCloud('GLUCOSE', { value: finalValue });
+              }
+            }
+          } catch (e) {
+            console.error("Error al decodificar la glucosa:", e);
+          }
+        }
+
         if (type === 'BLOOD_PRESSURE') {
           try {
             // Desencriptamos el Base64 que nos envía el OMRON

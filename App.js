@@ -5,8 +5,12 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import DashboardScreen from './src/screens/DashboardScreen';
 import InsulinLogScreen from './src/screens/InsulinLogScreen';
+import MedicationScreen from './src/screens/MedicationScreen';
+import HistoryScreen from './src/screens/HistoryScreen';
 import BluetoothScreen from './src/screens/BluetoothScreen';
 import DietScreen from './src/screens/DietScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -16,16 +20,31 @@ function HomeStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: '#0A2540' },
-        headerTintColor: '#fff',
-        headerTitleStyle: { fontWeight: 'bold' },
+        headerTintColor: '#0575E6',
+        headerTitleStyle: { 
+          fontWeight: '900', 
+          fontSize: 22, 
+          letterSpacing: 1,
+        },
+        headerTitleAlign: 'center',
+        headerStyle: {
+          backgroundColor: '#FFFFFF',
+        },
+        headerShadowVisible: false,
+        animation: 'fade_from_bottom',
       }}
     >
-      <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ title: 'Mi Salud' }} />
-      <Stack.Screen name="InsulinLog" component={InsulinLogScreen} options={{ title: 'Registrar Dosis' }} />
+      <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="InsulinLog" component={InsulinLogScreen} options={{ title: 'Registrar Dosis', headerTintColor: '#0575E6', headerTitleStyle: { fontWeight: '900' } }} />
+      <Stack.Screen name="Medications" component={MedicationScreen} options={{ title: 'Mis Medicamentos', headerTintColor: '#0575E6', headerTitleStyle: { fontWeight: '900' } }} />
     </Stack.Navigator>
   );
 }
+
+import { Text, StyleSheet } from 'react-native';
+
+// Funciones auxiliares para renderizar iconos nativos limpios
+const renderTabIcon = (emoji) => <Text style={{ fontSize: 24, marginTop: 4 }}>{emoji}</Text>;
 
 export default function App() {
   return (
@@ -33,33 +52,64 @@ export default function App() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#007AFF',
-          tabBarInactiveTintColor: '#A0AEC0',
+          tabBarActiveTintColor: '#0575E6',
+          tabBarInactiveTintColor: '#94A3B8',
           tabBarStyle: {
-            paddingBottom: 5,
-            paddingTop: 5,
-            height: 60,
+            backgroundColor: '#FFFFFF',
+            borderTopWidth: 1,
+            borderTopColor: '#F1F5F9',
+            elevation: 0, 
+            height: 65,
+            paddingBottom: 8,
+            paddingTop: 8,
           },
           tabBarLabelStyle: {
-            fontSize: 14,
-            fontWeight: '600',
+            fontSize: 11,
+            fontWeight: '700',
+            letterSpacing: 0.5,
+            marginTop: 4,
           }
         }}
       >
         <Tab.Screen 
           name="Home" 
           component={HomeStack} 
-          options={{ tabBarLabel: 'Inicio' }} 
+          options={{ 
+            tabBarLabel: 'Inicio',
+            tabBarIcon: () => renderTabIcon('🏠')
+          }} 
         />
         <Tab.Screen 
           name="DietTab" 
           component={DietScreen} 
-          options={{ tabBarLabel: 'Dieta' }} 
+          options={{ 
+            tabBarLabel: 'Dieta',
+            tabBarIcon: () => renderTabIcon('🍏')
+          }} 
+        />
+        <Tab.Screen 
+          name="HistoryTab" 
+          component={HistoryScreen} 
+          options={{ 
+            tabBarLabel: 'Historial',
+            tabBarIcon: () => renderTabIcon('🗓️')
+          }} 
         />
         <Tab.Screen 
           name="BluetoothTab" 
           component={BluetoothScreen} 
-          options={{ tabBarLabel: 'Dispositivos' }} 
+          options={{ 
+            tabBarLabel: 'Aparatos',
+            tabBarIcon: () => renderTabIcon('📡')
+          }} 
+        />
+        <Tab.Screen 
+          name="ProfileTab" 
+          component={ProfileScreen} 
+          options={{ 
+            tabBarLabel: 'Perfil',
+            tabBarIcon: () => renderTabIcon('👤')
+          }} 
         />
       </Tab.Navigator>
     </NavigationContainer>

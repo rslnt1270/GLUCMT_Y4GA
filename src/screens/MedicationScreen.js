@@ -1,0 +1,160 @@
+import React from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useAppStore } from '../utils/store';
+
+export default function MedicationScreen({ navigation }) {
+  const medications = useAppStore((state) => state.medications);
+
+  const renderItem = ({ item }) => (
+    <View style={styles.medCard}>
+      <View style={styles.medIconContainer}>
+        <Text style={styles.medIcon}>💊</Text>
+      </View>
+      <View style={styles.medInfo}>
+        <Text style={styles.medName}>{item.name}</Text>
+        <Text style={styles.medDose}>{item.dose}</Text>
+        <Text style={styles.medFrequency}>🕒 {item.frequency}</Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Mis Medicamentos</Text>
+          <Text style={styles.subtitle}>Control de dosis y frecuencia</Text>
+        </View>
+
+        {medications.length > 0 ? (
+          <FlatList
+            data={medications}
+            keyExtractor={(item) => item.id}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContainer}
+          />
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No tienes medicamentos registrados aún.</Text>
+          </View>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => alert('Próximamente: Añadir Medicamento')}
+          >
+            <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
+              <Text style={styles.buttonText}>➕ Añadir Nuevo Medicamento</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  header: {
+    padding: 24,
+    paddingBottom: 10,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#0F2027',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#64748B',
+    marginTop: 5,
+  },
+  listContainer: {
+    padding: 20,
+    paddingBottom: 40,
+  },
+  medCard: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+    alignItems: 'center',
+  },
+  medIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 15,
+  },
+  medIcon: {
+    fontSize: 28,
+  },
+  medInfo: {
+    flex: 1,
+  },
+  medName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#0F2027',
+    marginBottom: 4,
+  },
+  medDose: {
+    fontSize: 15,
+    color: '#0575E6',
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  medFrequency: {
+    fontSize: 14,
+    color: '#64748B',
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  emptyText: {
+    color: '#94A3B8',
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    padding: 24,
+    paddingBottom: 40,
+  },
+  actionButton: {
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  gradient: {
+    paddingVertical: 18,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  }
+});
