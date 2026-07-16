@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAppStore } from '../utils/store';
+import { useAppStore } from '../store/store';
 
 export default function MedicationScreen({ navigation }) {
   const medications = useAppStore((state) => state.medications);

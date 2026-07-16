@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, PermissionsAndroid, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAppStore } from '../utils/store';
-import { bleService } from '../utils/bleManager';
+import { useAppStore } from '../store/store';
+import { bleService } from '../services/bleManager';
 
 export default function BluetoothScreen() {
   const isConnected = useAppStore((state) => state.isGlucometerConnected);

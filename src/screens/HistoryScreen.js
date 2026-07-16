@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { useAppStore } from '../utils/store';
+import { useAppStore } from '../store/store';
 
 // Configurar calendario en español
 LocaleConfig.locales['es'] = {

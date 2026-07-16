@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 // import { collection, addDoc } from 'firebase/firestore';
-// import { db } from '../utils/firebaseConfig';
+// import { db } from '../services/firebaseConfig';
 
 export default function InsulinLogScreen({ navigation }) {
   const [dose, setDose] = useState('');

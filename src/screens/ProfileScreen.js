@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAppStore } from '../utils/store';
+import { useAppStore } from '../store/store';
 
 export default function ProfileScreen() {
   const userProfile = useAppStore((state) => state.userProfile);

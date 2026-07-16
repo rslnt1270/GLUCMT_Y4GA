@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, TextInput, Modal, Alert } from 'react-native';
-import { useAppStore } from '../utils/store';
+import { useAppStore } from '../store/store';
 
 export default function DietScreen() {
   const dietMeals = useAppStore((state) => state.dietMeals);

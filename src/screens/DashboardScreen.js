@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAppStore } from '../utils/store';
+import { useAppStore } from '../store/store';
 
 export default function DashboardScreen({ navigation }) {
   const lastGlucose = useAppStore((state) => state.lastGlucoseReading) || '--';
