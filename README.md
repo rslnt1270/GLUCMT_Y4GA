@@ -48,6 +48,37 @@ A continuación, se muestra el diseño de la aplicación:
 
 ---
 
+## 📁 Estructura del Proyecto
+
+El repositorio está organizado siguiendo las mejores prácticas para aplicaciones escalables en React Native:
+
+```text
+GLUCMT_Y4GA/
+├── App.js                     # Punto de entrada ultra limpio
+├── README.md
+├── assets/
+│   └── screenshots/           # Capturas de la interfaz
+└── src/
+    ├── navigation/            # Lógica de enrutamiento
+    │   └── AppNavigator.js    # Stack y Tabs principales
+    ├── screens/               # Vistas visuales UI
+    │   ├── BluetoothScreen.js
+    │   ├── DashboardScreen.js
+    │   ├── DietScreen.js
+    │   ├── HistoryScreen.js
+    │   ├── InsulinLogScreen.js
+    │   ├── MedicationScreen.js
+    │   └── ProfileScreen.js
+    ├── services/              # Lógica de negocio e integraciones
+    │   ├── bleManager.js      # Conexión Bluetooth
+    │   ├── firebaseConfig.js  # Credenciales BD
+    │   └── notifications.js   # Lógica de alarmas
+    └── store/                 # Estado global de la App
+        └── store.js           # Zustand (Dieta, Perfil, Medicamentos, etc.)
+```
+
+---
+
 ## 🚀 Instalación y Uso
 
 1. **Clonar el repositorio**:
