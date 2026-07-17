@@ -57,13 +57,9 @@ class BLEService {
 
           console.log(`📡 Señal médica detectada: ${device.name}`);
         
-          // --- AQUÍ LUEGO AGREGAREMOS LA LÓGICA PARA OTROS GLUCÓMETROS ---
-          // Por ahora, sabemos que OMRON usa 'BLEsmart' o 'OMRON'
-          if (device.name.toLowerCase().includes('blesmart') || device.name.toLowerCase().includes('omron')) {
-            console.log(`¡🎉 OMRON ENCONTRADO (${device.name})! Deteniendo escaneo y conectando...`);
-            this.manager.stopDeviceScan();
-            this.connectToDevice(device);
-          }
+          console.log(`¡🎉 DISPOSITIVO MÉDICO ENCONTRADO (${device.name})! Deteniendo escaneo y conectando...`);
+          this.manager.stopDeviceScan();
+          this.connectToDevice(device);
         }
       });
     });
