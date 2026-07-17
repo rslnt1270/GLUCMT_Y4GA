@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
@@ -15,10 +15,34 @@ LocaleConfig.locales['es'] = {
 LocaleConfig.defaultLocale = 'es';
 
 export default function HistoryScreen() {
-  const [selectedDate, setSelectedDate] = useState('');
+  // El calendario se inicializa en el día actual (formato YYYY-MM-DD)
+  const todayString = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState(todayString);
   
-  const lastGlucose = useAppStore((state) => state.lastGlucoseReading);
-  const lastBP = useAppStore((state) => state.lastBloodPressure);
+  const glucoseHistory = useAppStore((state) => state.glucoseHistory) || [];
+  const lastBP = useAppStore((state) => state.lastBloodPressure); // Todavía podemos mostrarlo si fue hoy
+
+  // Crear objeto de markedDates para el calendario basado en glucoseHistory
+  const markedDates = useMemo(() => {
+    let marks = {};
+    glucoseHistory.forEach(record => {
+      // Extraemos solo la parte YYYY-MM-DD de la fecha ISO
+      const dateKey = record.date.split('T')[0];
+      marks[dateKey] = { marked: true, dotColor: '#00F260' };
+    });
+    // Agregar el día seleccionado actual
+    if (marks[selectedDate]) {
+      marks[selectedDate] = { ...marks[selectedDate], selected: true, selectedColor: '#0575E6', selectedTextColor: '#FFFFFF' };
+    } else {
+      marks[selectedDate] = { selected: true, selectedColor: '#0575E6', selectedTextColor: '#FFFFFF' };
+    }
+    return marks;
+  }, [glucoseHistory, selectedDate]);
+
+  // Filtrar las lecturas para el día seleccionado
+  const recordsForSelectedDate = useMemo(() => {
+    return glucoseHistory.filter(record => record.date.startsWith(selectedDate));
+  }, [glucoseHistory, selectedDate]);
 
   return (
     <View style={styles.container}>
@@ -33,9 +57,7 @@ export default function HistoryScreen() {
             onDayPress={(day) => {
               setSelectedDate(day.dateString);
             }}
-            markedDates={{
-              [selectedDate]: { selected: true, selectedColor: '#0575E6', selectedTextColor: '#FFFFFF' },
-            }}
+            markedDates={markedDates}
             theme={{
               backgroundColor: '#FFFFFF',
               calendarBackground: '#FFFFFF',
@@ -45,8 +67,8 @@ export default function HistoryScreen() {
               todayTextColor: '#0575E6',
               dayTextColor: '#0F2027',
               textDisabledColor: '#CBD5E0',
-              dotColor: '#0575E6',
-              selectedDotColor: '#FFFFFF',
+              dotColor: '#00F260',
+              selectedDotColor: '#00F260',
               arrowColor: '#0575E6',
               monthTextColor: '#0F2027',
               indicatorColor: '#0575E6',
@@ -65,27 +87,41 @@ export default function HistoryScreen() {
             <View>
               <Text style={styles.dateTitle}>Registros del {selectedDate}</Text>
               
-              <View style={styles.historyItem}>
-                <View style={styles.historyIconContainer}>
-                  <Text style={styles.historyIcon}>🩸</Text>
-                </View>
-                <View style={styles.historyTextContainer}>
-                  <Text style={styles.historyItemTitle}>Presión Arterial</Text>
-                  <Text style={styles.historyItemTime}>08:30 AM</Text>
-                </View>
-                <Text style={styles.historyItemValue}>{lastBP ? `${lastBP.sys}/${lastBP.dia}` : '130/80'}</Text>
-              </View>
+              {/* Iterar sobre el historial de glucosa del día */}
+              {recordsForSelectedDate.length > 0 ? (
+                recordsForSelectedDate.map((record, index) => {
+                  const dateObj = new Date(record.date);
+                  const timeString = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  return (
+                    <View key={`glucose-${index}`} style={styles.historyItem}>
+                      <View style={styles.historyIconContainer}>
+                        <Text style={styles.historyIcon}>💧</Text>
+                      </View>
+                      <View style={styles.historyTextContainer}>
+                        <Text style={styles.historyItemTitle}>Glucosa (Accu-Chek)</Text>
+                        <Text style={styles.historyItemTime}>{timeString}</Text>
+                      </View>
+                      <Text style={styles.historyItemValue}>{record.value} mg/dL</Text>
+                    </View>
+                  );
+                })
+              ) : (
+                <Text style={{color: '#64748B', marginBottom: 15}}>No hay registros de glucosa guardados para este día.</Text>
+              )}
 
-              <View style={styles.historyItem}>
-                <View style={styles.historyIconContainer}>
-                  <Text style={styles.historyIcon}>💧</Text>
+              {/* Hardcodeamos OMRON temporalmente si es "hoy" para la demo */}
+              {selectedDate === todayString && lastBP && (
+                <View style={styles.historyItem}>
+                  <View style={styles.historyIconContainer}>
+                    <Text style={styles.historyIcon}>🩸</Text>
+                  </View>
+                  <View style={styles.historyTextContainer}>
+                    <Text style={styles.historyItemTitle}>Presión Arterial (OMRON)</Text>
+                    <Text style={styles.historyItemTime}>Última toma</Text>
+                  </View>
+                  <Text style={styles.historyItemValue}>{lastBP.sys}/{lastBP.dia}</Text>
                 </View>
-                <View style={styles.historyTextContainer}>
-                  <Text style={styles.historyItemTitle}>Glucosa</Text>
-                  <Text style={styles.historyItemTime}>09:00 AM</Text>
-                </View>
-                <Text style={styles.historyItemValue}>{lastGlucose || '95'} mg/dL</Text>
-              </View>
+              )}
             </View>
           ) : (
             <View style={styles.emptyContainer}>
