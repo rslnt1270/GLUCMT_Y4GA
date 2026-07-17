@@ -69,8 +69,13 @@ class BLEService {
   }
 
   async connectToDevice(device) {
+    if (this.isConnecting) return;
+    this.isConnecting = true;
+
     try {
-      const connectedDevice = await device.connect();
+      console.log(`Negociando conexión con ${device.name}...`);
+      // autoConnect: false fuerza una conexión directa e inmediata (mejor para Android)
+      const connectedDevice = await device.connect({ autoConnect: false, requestMTU: 512 });
       this.device = connectedDevice;
       useAppStore.getState().setGlucometerConnected(true);
       this.isConnecting = false;
