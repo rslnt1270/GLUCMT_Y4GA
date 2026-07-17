@@ -84,21 +84,39 @@ class BLEService {
         this.disconnectSubscription.remove();
       }
 
-      // Detectar cuando el OMRON se apaga (se desconecta) para prepararnos para la siguiente lectura
+      // Detectar cuando el OMRON o Accu-Chek se apaga (se desconecta)
       this.disconnectSubscription = this.manager.onDeviceDisconnected(device.id, (error, d) => {
-        console.log(`🔌 El dispositivo cerró la conexión (Se apagó o requiere emparejamiento OS).`);
+        console.log(`🔌 El dispositivo cerró la conexión (Se apagó o finalizó transmisión).`);
         useAppStore.getState().setGlucometerConnected(false);
         this.device = null;
         this.isConnecting = false;
-        
-        // Eliminamos el escaneo automático agresivo aquí.
-        // El usuario deberá presionar "Escanear y Conectar" de nuevo.
       });
 
       await connectedDevice.discoverAllServicesAndCharacteristics();
       
-      // Intentamos suscribirnos a ambos servicios (el que exista en el dispositivo no fallará)
+      // 1. Suscribirse para RECIBIR los datos de glucosa (0x2A18)
       this.subscribeToMeasurements(connectedDevice, GLUCOSE_SERVICE_UUID, GLUCOSE_MEASUREMENT_CHARACTERISTIC, 'GLUCOSE');
+      
+      // 2. Suscribirse y mandar comando a RACP (0x2A52) para OBLIGAR al Accu-Chek a escupir los datos
+      const RACP_UUID = '00002a52-0000-1000-8000-00805f9b34fb';
+      try {
+        // Nos suscribimos al canal de control para saber si aceptó el comando
+        connectedDevice.monitorCharacteristicForService(GLUCOSE_SERVICE_UUID, RACP_UUID, (err, char) => {
+           if (!err && char) console.log("Respuesta del RACP (Control):", char.value);
+        });
+
+        // Escribimos [0x01, 0x06] (Opcode: Report stored records, Operator: Last record) en Base64 -> "AQY="
+        console.log("Enviando comando al Accu-Chek para que envíe la última lectura...");
+        await connectedDevice.writeCharacteristicWithResponseForService(
+          GLUCOSE_SERVICE_UUID,
+          RACP_UUID,
+          'AQY='
+        );
+      } catch (racpErr) {
+        console.log("Este dispositivo no usa RACP estricto (omron o libre), omitiendo comando de control.");
+      }
+
+      // Para OMRON y baumanómetros (estos sí mandan solitos sin RACP usualmente)
       this.subscribeToMeasurements(connectedDevice, BLOOD_PRESSURE_SERVICE_UUID, BLOOD_PRESSURE_MEASUREMENT_CHARACTERISTIC, 'BLOOD_PRESSURE');
 
     } catch (error) {
