@@ -3,8 +3,20 @@ import { create } from 'zustand';
 export const useAppStore = create((set) => ({
   // Estado de Glucosa y Bluetooth
   lastGlucoseReading: null,
+  glucoseHistory: [], // Historial de lecturas guardadas
   isGlucometerConnected: false,
   setLastGlucoseReading: (reading) => set({ lastGlucoseReading: reading }),
+  saveGlucoseReading: () => set((state) => {
+    if (!state.lastGlucoseReading) return state;
+    return {
+      glucoseHistory: [
+        ...state.glucoseHistory,
+        { value: state.lastGlucoseReading, date: new Date().toISOString() }
+      ],
+      lastGlucoseReading: null // Limpiamos para la siguiente toma
+    };
+  }),
+  clearCurrentGlucose: () => set({ lastGlucoseReading: null }),
   setGlucometerConnected: (status) => set({ isGlucometerConnected: status }),
 
   // Estado de Insulina

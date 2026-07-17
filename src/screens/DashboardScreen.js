@@ -5,6 +5,8 @@ import { useAppStore } from '../store/store';
 
 export default function DashboardScreen({ navigation }) {
   const lastGlucose = useAppStore((state) => state.lastGlucoseReading) || '--';
+  const saveGlucose = useAppStore((state) => state.saveGlucoseReading);
+  const clearGlucose = useAppStore((state) => state.clearCurrentGlucose);
   const lastInsulin = useAppStore((state) => state.lastInsulinDose) || '--';
   const lastBP = useAppStore((state) => state.lastBloodPressure);
   const isConnected = useAppStore((state) => state.isGlucometerConnected);
@@ -88,6 +90,16 @@ export default function DashboardScreen({ navigation }) {
             <View style={styles.glassCard}>
               <Text style={styles.cardLabel}>Glucosa</Text>
               <Text style={styles.cardValue}>{lastGlucose} <Text style={styles.unitSmall}>mg/dL</Text></Text>
+              {lastGlucose !== '--' && (
+                <View style={styles.glucoseActions}>
+                  <TouchableOpacity style={styles.glucoseBtnSave} onPress={saveGlucose}>
+                    <Text style={styles.glucoseBtnText}>Guardar</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.glucoseBtnClear} onPress={clearGlucose}>
+                    <Text style={styles.glucoseBtnText}>Limpiar</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
             </View>
             <View style={styles.glassCard}>
               <Text style={styles.cardLabel}>Insulina</Text>
@@ -265,6 +277,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#94A3B8',
     fontWeight: '600',
+  },
+  glucoseActions: {
+    flexDirection: 'row',
+    marginTop: 15,
+    width: '100%',
+    justifyContent: 'space-around',
+  },
+  glucoseBtnSave: {
+    backgroundColor: '#00F260',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  glucoseBtnClear: {
+    backgroundColor: '#FF4B2B',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  glucoseBtnText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
   actionContainer: {
     paddingHorizontal: 24,
