@@ -50,13 +50,23 @@ export const useAppStore = create((set) => ({
     }
   })),
   
-  saveGlucoseReading: () => set((state) => {
+  saveCompleteReading: () => set((state) => {
     const activePatient = state.patients[state.activePatientId];
-    if (!activePatient.lastGlucoseReading) return state;
     
-    // Almacenar también en Firestore
+    if (!activePatient.lastGlucoseReading && !activePatient.lastBloodPressure && !activePatient.lastInsulinDose) {
+      return state;
+    }
+    
+    const snapshot = {
+      glucose: activePatient.lastGlucoseReading || null,
+      bloodPressure: activePatient.lastBloodPressure || null,
+      insulin: activePatient.lastInsulinDose || null,
+      medicationsTaken: state.medications.filter(m => m.takenToday).map(m => m.name)
+    };
+
+    // Almacenar en Firestore como un solo bloque
     const { saveReadingToCloud } = require('../services/firebaseConfig');
-    saveReadingToCloud('GLUCOSE', { value: activePatient.lastGlucoseReading }, activePatient.name);
+    saveReadingToCloud('TOMA_COMPLETA', snapshot, activePatient.name);
 
     return {
       patients: {
@@ -65,18 +75,29 @@ export const useAppStore = create((set) => ({
           ...activePatient,
           glucoseHistory: [
             ...activePatient.glucoseHistory,
-            { value: activePatient.lastGlucoseReading, date: new Date().toISOString() }
+            { 
+              value: snapshot.glucose || (snapshot.bloodPressure ? `${snapshot.bloodPressure.sys}/${snapshot.bloodPressure.dia}` : '✓'),
+              fullSnapshot: snapshot,
+              date: new Date().toISOString() 
+            }
           ],
-          lastGlucoseReading: null
+          lastGlucoseReading: null,
+          lastBloodPressure: null,
+          lastInsulinDose: null
         }
       }
     };
   }),
 
-  clearCurrentGlucose: () => set((state) => ({
+  clearAllReadings: () => set((state) => ({
     patients: {
       ...state.patients,
-      [state.activePatientId]: { ...state.patients[state.activePatientId], lastGlucoseReading: null }
+      [state.activePatientId]: { 
+        ...state.patients[state.activePatientId], 
+        lastGlucoseReading: null,
+        lastBloodPressure: null,
+        lastInsulinDose: null
+      }
     }
   })),
 

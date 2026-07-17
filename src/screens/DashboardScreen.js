@@ -16,8 +16,8 @@ export default function DashboardScreen({ navigation }) {
   const [newPatientName, setNewPatientName] = useState('');
 
   const lastGlucose = activePatient.lastGlucoseReading || '--';
-  const saveGlucose = useAppStore((state) => state.saveGlucoseReading);
-  const clearGlucose = useAppStore((state) => state.clearCurrentGlucose);
+  const saveComplete = useAppStore((state) => state.saveCompleteReading);
+  const clearAll = useAppStore((state) => state.clearAllReadings);
   const lastInsulin = activePatient.lastInsulinDose || '--';
   const lastBP = activePatient.lastBloodPressure;
   const isConnected = useAppStore((state) => state.isGlucometerConnected);
@@ -60,37 +60,21 @@ export default function DashboardScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    // Animación de entrada
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 800,
-        useNativeDriver: true,
-      }),
-      Animated.spring(slideAnim, {
-        toValue: 0,
-        tension: 20,
-        friction: 7,
-        useNativeDriver: true,
-      })
-    ]).start();
-
-    // Loop de respiración
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.03,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1500,
-          useNativeDriver: true,
-        }),
+        Animated.timing(pulseAnim, { toValue: 1.05, duration: 1500, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1500, useNativeDriver: true })
       ])
     ).start();
+
+    Animated.parallel([
+      Animated.timing(fadeAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
+      Animated.spring(slideAnim, { toValue: 0, friction: 8, tension: 40, useNativeDriver: true })
+    ]).start();
   }, [pulseAnim, fadeAnim, slideAnim]);
+
+  // Si hay algún dato pendiente de guardar
+  const hasPendingData = activePatient.lastGlucoseReading || activePatient.lastBloodPressure || activePatient.lastInsulinDose;
 
   return (
     <View style={styles.container}>
@@ -195,22 +179,25 @@ export default function DashboardScreen({ navigation }) {
             <View style={styles.glassCard}>
               <Text style={styles.cardLabel}>Glucosa</Text>
               <Text style={styles.cardValue}>{lastGlucose} <Text style={styles.unitSmall}>mg/dL</Text></Text>
-              {lastGlucose !== '--' && (
-                <View style={styles.glucoseActions}>
-                  <TouchableOpacity style={styles.glucoseBtnSave} onPress={saveGlucose}>
-                    <Text style={styles.glucoseBtnText}>Guardar</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.glucoseBtnClear} onPress={clearGlucose}>
-                    <Text style={styles.glucoseBtnText}>Limpiar</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
             </View>
             <View style={styles.glassCard}>
               <Text style={styles.cardLabel}>Insulina</Text>
               <Text style={styles.cardValue}>{lastInsulin} <Text style={styles.unitSmall}>U</Text></Text>
             </View>
           </View>
+
+          {hasPendingData && (
+            <View style={styles.comboActionContainer}>
+              <TouchableOpacity style={styles.comboBtnSave} onPress={saveComplete}>
+                <LinearGradient colors={['#00F260', '#0575E6']} style={styles.comboGradient}>
+                  <Text style={styles.comboBtnText}>✅ GUARDAR TOMA COMPLETA</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.comboBtnClear} onPress={clearAll}>
+                <Text style={styles.comboBtnClearText}>Descartar</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <View style={styles.actionContainer}>
             <TouchableOpacity 
@@ -383,26 +370,37 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontWeight: '600',
   },
-  glucoseActions: {
-    flexDirection: 'row',
-    marginTop: 15,
+  comboActionContainer: {
+    paddingHorizontal: 24,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  comboBtnSave: {
     width: '100%',
-    justifyContent: 'space-around',
+    borderRadius: 16,
+    shadowColor: '#00F260',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 5,
+    marginBottom: 12,
   },
-  glucoseBtnSave: {
-    backgroundColor: '#00F260',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+  comboGradient: {
+    paddingVertical: 16,
+    borderRadius: 16,
+    alignItems: 'center',
   },
-  glucoseBtnClear: {
-    backgroundColor: '#FF4B2B',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8,
-  },
-  glucoseBtnText: {
+  comboBtnText: {
     color: '#FFF',
+    fontWeight: '900',
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+  comboBtnClear: {
+    paddingVertical: 10,
+  },
+  comboBtnClearText: {
+    color: '#94A3B8',
     fontWeight: 'bold',
     fontSize: 14,
   },

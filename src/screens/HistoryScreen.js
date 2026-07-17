@@ -95,34 +95,55 @@ export default function HistoryScreen() {
                 recordsForSelectedDate.map((record, index) => {
                   const dateObj = new Date(record.date);
                   const timeString = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                  const snap = record.fullSnapshot || { glucose: record.value }; // Retrocompatibilidad
+                  
                   return (
-                    <View key={`glucose-${index}`} style={styles.historyItem}>
-                      <View style={styles.historyIconContainer}>
-                        <Text style={styles.historyIcon}>💧</Text>
+                    <View key={`combo-${index}`} style={styles.comboCard}>
+                      <View style={styles.comboHeader}>
+                        <Text style={styles.comboTime}>{timeString}</Text>
+                        <Text style={styles.comboBadge}>Toma Registrada</Text>
                       </View>
-                      <View style={styles.historyTextContainer}>
-                        <Text style={styles.historyItemTitle}>Glucosa (Accu-Chek)</Text>
-                        <Text style={styles.historyItemTime}>{timeString}</Text>
-                      </View>
-                      <Text style={styles.historyItemValue}>{record.value} mg/dL</Text>
+                      
+                      {snap.glucose && (
+                        <View style={styles.historyItem}>
+                          <View style={styles.historyIconContainer}><Text style={styles.historyIcon}>💧</Text></View>
+                          <View style={styles.historyTextContainer}><Text style={styles.historyItemTitle}>Glucosa</Text></View>
+                          <Text style={styles.historyItemValue}>{snap.glucose} mg/dL</Text>
+                        </View>
+                      )}
+                      
+                      {snap.bloodPressure && (
+                        <View style={styles.historyItem}>
+                          <View style={styles.historyIconContainer}><Text style={styles.historyIcon}>🩸</Text></View>
+                          <View style={styles.historyTextContainer}><Text style={styles.historyItemTitle}>Presión Arterial</Text></View>
+                          <Text style={styles.historyItemValue}>{snap.bloodPressure.sys}/{snap.bloodPressure.dia}</Text>
+                        </View>
+                      )}
+
+                      {snap.insulin && (
+                        <View style={styles.historyItem}>
+                          <View style={styles.historyIconContainer}><Text style={styles.historyIcon}>💉</Text></View>
+                          <View style={styles.historyTextContainer}><Text style={styles.historyItemTitle}>Insulina Inyectada</Text></View>
+                          <Text style={styles.historyItemValue}>{snap.insulin} U</Text>
+                        </View>
+                      )}
+
+                      {snap.medicationsTaken && snap.medicationsTaken.length > 0 && (
+                        <View style={styles.historyItem}>
+                          <View style={styles.historyIconContainer}><Text style={styles.historyIcon}>💊</Text></View>
+                          <View style={styles.historyTextContainer}>
+                            <Text style={styles.historyItemTitle}>Medicamentos</Text>
+                            <Text style={styles.historyItemTime}>{snap.medicationsTaken.join(', ')}</Text>
+                          </View>
+                          <Text style={styles.historyItemValue}>✓</Text>
+                        </View>
+                      )}
                     </View>
                   );
                 })
               ) : (
-                <Text style={{color: '#64748B', marginBottom: 15}}>No hay registros de glucosa guardados para este día.</Text>
-              )}
-
-              {/* Hardcodeamos OMRON temporalmente si es "hoy" para la demo */}
-              {selectedDate === todayString && lastBP && (
-                <View style={styles.historyItem}>
-                  <View style={styles.historyIconContainer}>
-                    <Text style={styles.historyIcon}>🩸</Text>
-                  </View>
-                  <View style={styles.historyTextContainer}>
-                    <Text style={styles.historyItemTitle}>Presión Arterial (OMRON)</Text>
-                    <Text style={styles.historyItemTime}>Última toma</Text>
-                  </View>
-                  <Text style={styles.historyItemValue}>{lastBP.sys}/{lastBP.dia}</Text>
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>No hay registros guardados para este día.</Text>
                 </View>
               )}
             </View>
@@ -234,5 +255,36 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontSize: 16,
     textAlign: 'center',
+  },
+  comboCard: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  comboHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+    paddingBottom: 10,
+  },
+  comboTime: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#0F2027',
+  },
+  comboBadge: {
+    backgroundColor: '#E0F2FE',
+    color: '#0284C7',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    fontSize: 12,
+    fontWeight: 'bold',
   }
 });
