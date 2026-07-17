@@ -24,6 +24,24 @@ export const useAppStore = create((set) => ({
   
   setActivePatient: (id) => set({ activePatientId: id }),
 
+  addPatient: (name) => set((state) => {
+    const newId = Date.now().toString();
+    return {
+      patients: {
+        ...state.patients,
+        [newId]: {
+          id: newId,
+          name: name,
+          lastGlucoseReading: null,
+          glucoseHistory: [],
+          lastBloodPressure: null,
+          lastInsulinDose: null,
+        }
+      },
+      activePatientId: newId
+    };
+  }),
+
   // Helpers para interactuar con el paciente activo
   setLastGlucoseReading: (reading) => set((state) => ({
     patients: {

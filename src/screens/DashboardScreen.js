@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView, PermissionsAndroid, Platform } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView, PermissionsAndroid, Platform, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
@@ -7,8 +7,13 @@ import { bleService } from '../services/bleManager';
 
 export default function DashboardScreen({ navigation }) {
   const activePatientId = useAppStore((state) => state.activePatientId);
-  const activePatient = useAppStore((state) => state.patients[state.activePatientId]);
+  const patients = useAppStore((state) => state.patients);
+  const activePatient = patients[activePatientId];
   const setActivePatient = useAppStore((state) => state.setActivePatient);
+  const addPatient = useAppStore((state) => state.addPatient);
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [newPatientName, setNewPatientName] = useState('');
 
   const lastGlucose = activePatient.lastGlucoseReading || '--';
   const saveGlucose = useAppStore((state) => state.saveGlucoseReading);
@@ -99,12 +104,67 @@ export default function DashboardScreen({ navigation }) {
               </View>
               <TouchableOpacity 
                 style={{ backgroundColor: '#E2E8F0', padding: 8, borderRadius: 20 }}
-                onPress={() => setActivePatient(activePatientId === '1' ? '2' : '1')}
+                onPress={() => setModalVisible(true)}
               >
                 <Text style={{ fontWeight: 'bold', color: '#0575E6' }}>Cambiar Perfil 👥</Text>
               </TouchableOpacity>
             </View>
           </View>
+
+          {/* Modal de Selección y Creación de Perfil */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Seleccionar Paciente</Text>
+                
+                {Object.values(patients).map((patient) => (
+                  <TouchableOpacity
+                    key={patient.id}
+                    style={[styles.patientButton, activePatientId === patient.id && styles.patientButtonActive]}
+                    onPress={() => {
+                      setActivePatient(patient.id);
+                      setModalVisible(false);
+                    }}
+                  >
+                    <Text style={[styles.patientButtonText, activePatientId === patient.id && styles.patientButtonTextActive]}>
+                      {patient.name}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+
+                <View style={styles.divider} />
+                <Text style={styles.modalSubtitle}>Agregar Nuevo Paciente</Text>
+                
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="Nombre del nuevo paciente..."
+                  value={newPatientName}
+                  onChangeText={setNewPatientName}
+                />
+                <TouchableOpacity
+                  style={styles.modalAddButton}
+                  onPress={() => {
+                    if (newPatientName.trim().length > 0) {
+                      addPatient(newPatientName.trim());
+                      setNewPatientName('');
+                      setModalVisible(false);
+                    }
+                  }}
+                >
+                  <Text style={styles.modalAddButtonText}>+ Crear Perfil</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.modalCloseButton} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.modalCloseButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
 
           <View style={styles.mainOrbContainer}>
             <Animated.View style={[styles.orb, { transform: [{ scale: pulseAnim }] }]}>
@@ -365,5 +425,83 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#FFF',
+    padding: 20,
+    borderRadius: 20,
+    alignItems: 'stretch',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#0F2027',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  patientButton: {
+    padding: 15,
+    borderRadius: 10,
+    backgroundColor: '#F1F5F9',
+    marginBottom: 10,
+    alignItems: 'center',
+  },
+  patientButtonActive: {
+    backgroundColor: '#0575E6',
+  },
+  patientButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#64748B',
+  },
+  patientButtonTextActive: {
+    color: '#FFF',
+  },
+  divider: {
+    height: 1,
+    backgroundColor: '#E2E8F0',
+    marginVertical: 15,
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#0F2027',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 16,
+    marginBottom: 15,
+  },
+  modalAddButton: {
+    backgroundColor: '#00F260',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  modalAddButtonText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  modalCloseButton: {
+    padding: 15,
+    alignItems: 'center',
+  },
+  modalCloseButtonText: {
+    color: '#FF4B2B',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
