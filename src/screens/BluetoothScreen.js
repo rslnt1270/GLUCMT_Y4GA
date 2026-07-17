@@ -33,8 +33,8 @@ export default function BluetoothScreen() {
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <View style={styles.header}>
-        <Text style={styles.title}>Vincular Glucómetro</Text>
-        <Text style={styles.subtitle}>Conecta tu dispositivo vía Bluetooth</Text>
+        <Text style={styles.title}>Vincular Dispositivos Médicos</Text>
+        <Text style={styles.subtitle}>Conecta tus dispositivos vía Bluetooth</Text>
       </View>
 
       <View style={styles.statusContainer}>
@@ -75,14 +75,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#0F2027',
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#64748B',
     marginTop: 5,
+    textAlign: 'center',
   },
   statusContainer: {
     flex: 1,

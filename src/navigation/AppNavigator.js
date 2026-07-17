@@ -97,7 +97,7 @@ export default function AppNavigator() {
           name="BluetoothTab" 
           component={BluetoothScreen} 
           options={{ 
-            tabBarLabel: 'Aparatos',
+            tabBarLabel: 'Dispositivos',
             tabBarIcon: () => renderTabIcon('📡')
           }} 
         />
