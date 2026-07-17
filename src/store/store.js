@@ -54,6 +54,10 @@ export const useAppStore = create((set) => ({
     const activePatient = state.patients[state.activePatientId];
     if (!activePatient.lastGlucoseReading) return state;
     
+    // Almacenar también en Firestore
+    const { saveReadingToCloud } = require('../services/firebaseConfig');
+    saveReadingToCloud('GLUCOSE', { value: activePatient.lastGlucoseReading }, activePatient.name);
+
     return {
       patients: {
         ...state.patients,

@@ -26,17 +26,17 @@ try {
 }
 
 // Función auxiliar para subir lecturas médicas a la nube
-export const saveReadingToCloud = async (type, data) => {
-  console.log(`Intentando subir a Firebase la medición de ${type}...`);
+export const saveReadingToCloud = async (type, data, patientName = "Desconocido") => {
+  console.log(`Intentando subir a Firebase la medición de ${type} para el paciente ${patientName}...`);
   try {
     const docRef = await addDoc(collection(db, "mediciones"), {
       tipo: type, // "BLOOD_PRESSURE" o "GLUCOSE"
-      datos: data, // ej: {sys: 120, dia: 80}
+      datos: data, // ej: {sys: 120, dia: 80} o {value: 110}
       fecha: serverTimestamp(),
-      paciente: "Papá" // Aquí puedes poner el nombre de tu papá
+      paciente: patientName 
     });
-    console.log("☁️ ¡Dato guardado en la Nube con éxito! ID del documento:", docRef.id);
+    console.log("☁️ ¡Dato guardado en Firestore con éxito! ID del documento:", docRef.id);
   } catch (e) {
-    console.error("Error guardando en la Nube:", e);
+    console.error("Error guardando en Firestore:", e);
   }
 };

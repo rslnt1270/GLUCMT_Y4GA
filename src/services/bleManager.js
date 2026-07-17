@@ -210,10 +210,14 @@ class BLEService {
             // Evitamos leer ceros o basura
             if (sys > 0 && dia > 0) {
               console.log(`¡LECTURA MÉDICA DESCIFRADA! Sistólica: ${sys}, Diastólica: ${dia}`);
-              useAppStore.getState().setLastBloodPressure({ sys, dia });
               
-              // ¡MAGIA! Lo enviamos directamente a la nube
-              saveReadingToCloud('BLOOD_PRESSURE', { sys, dia });
+              const state = useAppStore.getState();
+              const activePatient = state.patients[state.activePatientId];
+              
+              state.setLastBloodPressure({ sys, dia });
+              
+              // ¡MAGIA! Lo enviamos directamente a la nube asociado a su perfil
+              saveReadingToCloud('BLOOD_PRESSURE', { sys, dia }, activePatient.name);
             }
           } catch (e) {
             console.error("Error al decodificar la presión arterial:", e);
