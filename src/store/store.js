@@ -1,33 +1,82 @@
 import { create } from 'zustand';
 
 export const useAppStore = create((set) => ({
-  // Estado de Glucosa y Bluetooth
-  lastGlucoseReading: null,
-  glucoseHistory: [], // Historial de lecturas guardadas
-  isGlucometerConnected: false,
-  setLastGlucoseReading: (reading) => set({ lastGlucoseReading: reading }),
+  // Soporte Multi-Paciente
+  activePatientId: '1',
+  patients: {
+    '1': {
+      id: '1',
+      name: 'Papá',
+      lastGlucoseReading: null,
+      glucoseHistory: [],
+      lastBloodPressure: null,
+      lastInsulinDose: null,
+    },
+    '2': {
+      id: '2',
+      name: 'Mamá',
+      lastGlucoseReading: null,
+      glucoseHistory: [],
+      lastBloodPressure: null,
+      lastInsulinDose: null,
+    }
+  },
+  
+  setActivePatient: (id) => set({ activePatientId: id }),
+
+  // Helpers para interactuar con el paciente activo
+  setLastGlucoseReading: (reading) => set((state) => ({
+    patients: {
+      ...state.patients,
+      [state.activePatientId]: { ...state.patients[state.activePatientId], lastGlucoseReading: reading }
+    }
+  })),
+  
   saveGlucoseReading: () => set((state) => {
-    if (!state.lastGlucoseReading) return state;
+    const activePatient = state.patients[state.activePatientId];
+    if (!activePatient.lastGlucoseReading) return state;
+    
     return {
-      glucoseHistory: [
-        ...state.glucoseHistory,
-        { value: state.lastGlucoseReading, date: new Date().toISOString() }
-      ],
-      lastGlucoseReading: null // Limpiamos para la siguiente toma
+      patients: {
+        ...state.patients,
+        [state.activePatientId]: {
+          ...activePatient,
+          glucoseHistory: [
+            ...activePatient.glucoseHistory,
+            { value: activePatient.lastGlucoseReading, date: new Date().toISOString() }
+          ],
+          lastGlucoseReading: null
+        }
+      }
     };
   }),
-  clearCurrentGlucose: () => set({ lastGlucoseReading: null }),
+
+  clearCurrentGlucose: () => set((state) => ({
+    patients: {
+      ...state.patients,
+      [state.activePatientId]: { ...state.patients[state.activePatientId], lastGlucoseReading: null }
+    }
+  })),
+
+  setLastBloodPressure: (bp) => set((state) => ({
+    patients: {
+      ...state.patients,
+      [state.activePatientId]: { ...state.patients[state.activePatientId], lastBloodPressure: bp }
+    }
+  })),
+  
+  setLastInsulinDose: (dose) => set((state) => ({
+    patients: {
+      ...state.patients,
+      [state.activePatientId]: { ...state.patients[state.activePatientId], lastInsulinDose: dose }
+    }
+  })),
+
+  // Estado de Bluetooth (es global al teléfono, no por paciente)
+  isGlucometerConnected: false,
   setGlucometerConnected: (status) => set({ isGlucometerConnected: status }),
 
-  // Estado de Insulina
-  lastInsulinDose: null,
-  setLastInsulinDose: (dose) => set({ lastInsulinDose: dose }),
-
-  // Estado de Presión Arterial (OMRON)
-  lastBloodPressure: null, // ej. { sys: 120, dia: 80 }
-  setLastBloodPressure: (bp) => set({ lastBloodPressure: bp }),
-
-  // Estado de Alarmas (Se integrará con expo-notifications)
+  // Estado de Alarmas y Medicamentos (Por simplicidad, los dejamos globales o se podrían migrar)
   nextAlarmTime: null,
   setNextAlarmTime: (time) => set({ nextAlarmTime: time }),
 

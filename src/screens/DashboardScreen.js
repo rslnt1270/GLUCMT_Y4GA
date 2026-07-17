@@ -6,11 +6,15 @@ import { useAppStore } from '../store/store';
 import { bleService } from '../services/bleManager';
 
 export default function DashboardScreen({ navigation }) {
-  const lastGlucose = useAppStore((state) => state.lastGlucoseReading) || '--';
+  const activePatientId = useAppStore((state) => state.activePatientId);
+  const activePatient = useAppStore((state) => state.patients[state.activePatientId]);
+  const setActivePatient = useAppStore((state) => state.setActivePatient);
+
+  const lastGlucose = activePatient.lastGlucoseReading || '--';
   const saveGlucose = useAppStore((state) => state.saveGlucoseReading);
   const clearGlucose = useAppStore((state) => state.clearCurrentGlucose);
-  const lastInsulin = useAppStore((state) => state.lastInsulinDose) || '--';
-  const lastBP = useAppStore((state) => state.lastBloodPressure);
+  const lastInsulin = activePatient.lastInsulinDose || '--';
+  const lastBP = activePatient.lastBloodPressure;
   const isConnected = useAppStore((state) => state.isGlucometerConnected);
 
   // Micro-animación (efecto de "respiración" suave)
@@ -88,9 +92,17 @@ export default function DashboardScreen({ navigation }) {
             <View style={styles.brandContainer}>
               <Text style={styles.brandTitle}>GLUCMT<Text style={styles.brandHighlight}>-Y4GA</Text></Text>
             </View>
-            <View style={styles.greetingContainer}>
-              <Text style={styles.greeting}>Hola,</Text>
-              <Text style={styles.subtitle}>Tu salud está bajo control.</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View style={styles.greetingContainer}>
+                <Text style={styles.greeting}>Hola, {activePatient.name}</Text>
+                <Text style={styles.subtitle}>Tu salud está bajo control.</Text>
+              </View>
+              <TouchableOpacity 
+                style={{ backgroundColor: '#E2E8F0', padding: 8, borderRadius: 20 }}
+                onPress={() => setActivePatient(activePatientId === '1' ? '2' : '1')}
+              >
+                <Text style={{ fontWeight: 'bold', color: '#0575E6' }}>Cambiar Perfil 👥</Text>
+              </TouchableOpacity>
             </View>
           </View>
 

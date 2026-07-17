@@ -19,8 +19,11 @@ export default function HistoryScreen() {
   const todayString = new Date().toISOString().split('T')[0];
   const [selectedDate, setSelectedDate] = useState(todayString);
   
-  const glucoseHistory = useAppStore((state) => state.glucoseHistory) || [];
-  const lastBP = useAppStore((state) => state.lastBloodPressure); // Todavía podemos mostrarlo si fue hoy
+  const activePatientId = useAppStore((state) => state.activePatientId);
+  const activePatient = useAppStore((state) => state.patients[state.activePatientId]);
+  
+  const glucoseHistory = activePatient.glucoseHistory || [];
+  const lastBP = activePatient.lastBloodPressure; // Todavía podemos mostrarlo si fue hoy
 
   // Crear objeto de markedDates para el calendario basado en glucoseHistory
   const markedDates = useMemo(() => {
@@ -48,8 +51,8 @@ export default function HistoryScreen() {
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <View style={styles.header}>
-          <Text style={styles.title}>Historial Médico</Text>
-          <Text style={styles.subtitle}>Selecciona un día para ver tus registros</Text>
+          <Text style={styles.title}>Historial Médico de {activePatient.name}</Text>
+          <Text style={styles.subtitle}>Selecciona un día para ver los registros</Text>
         </View>
 
         <View style={styles.calendarContainer}>
