@@ -90,6 +90,12 @@ class BLEService {
         useAppStore.getState().setGlucometerConnected(false);
         this.device = null;
         this.isConnecting = false;
+        
+        // Volver a poner la antena en modo escucha automática (loop infinito de recolección en segundo plano)
+        setTimeout(() => {
+          console.log("Reanudando antena para esperar nuevos dispositivos de forma automática...");
+          this.scanAndConnect();
+        }, 2000);
       });
 
       await connectedDevice.discoverAllServicesAndCharacteristics();

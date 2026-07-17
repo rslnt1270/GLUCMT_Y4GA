@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Animated, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView, PermissionsAndroid, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
+import { bleService } from '../services/bleManager';
 
 export default function DashboardScreen({ navigation }) {
   const lastGlucose = useAppStore((state) => state.lastGlucoseReading) || '--';
@@ -16,6 +18,30 @@ export default function DashboardScreen({ navigation }) {
   // Motion Graphics: Animación de entrada limpia
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+
+  // Auto-escanear al abrir el Dashboard
+  useEffect(() => {
+    const autoScan = async () => {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.requestMultiple([
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+        ]);
+        if (granted['android.permission.ACCESS_FINE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("Falta permiso de ubicación para auto-escanear");
+          return;
+        }
+      }
+      console.log("Iniciando escaneo automático en segundo plano desde el Dashboard...");
+      bleService.scanAndConnect();
+    };
+    
+    // Lo ejecutamos con un ligero retraso para no trabar la animación de UI inicial
+    setTimeout(() => {
+      autoScan();
+    }, 1000);
+  }, []);
 
   useEffect(() => {
     // Animación de entrada
