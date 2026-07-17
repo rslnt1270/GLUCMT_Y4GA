@@ -1,5 +1,5 @@
 import { BleManager } from 'react-native-ble-plx';
-import { useAppStore } from './store';
+import { useAppStore } from '../store/store';
 import { saveReadingToCloud } from './firebaseConfig';
 
 // UUIDs estándar mundial (Bluetooth SIG)
