@@ -102,15 +102,18 @@ class BLEService {
       try {
         // Nos suscribimos al canal de control para saber si aceptó el comando
         connectedDevice.monitorCharacteristicForService(GLUCOSE_SERVICE_UUID, RACP_UUID, (err, char) => {
-           if (!err && char) console.log("Respuesta del RACP (Control):", char.value);
+           if (!err && char) {
+              console.log("Respuesta del RACP (Control):", char.value);
+              // Si devuelve BgABBg== significa "0x06 0x00 0x01 0x06" -> No records found.
+           }
         });
 
-        // Escribimos [0x01, 0x06] (Opcode: Report stored records, Operator: Last record) en Base64 -> "AQY="
-        console.log("Enviando comando al Accu-Chek para que envíe la última lectura...");
+        // Escribimos [0x01, 0x01] (Opcode: Report stored records, Operator: All records) en Base64 -> "AQE="
+        console.log("Enviando comando al Accu-Chek para que envíe TODOS los registros...");
         await connectedDevice.writeCharacteristicWithResponseForService(
           GLUCOSE_SERVICE_UUID,
           RACP_UUID,
-          'AQY='
+          'AQE='
         );
       } catch (racpErr) {
         console.log("Este dispositivo no usa RACP estricto (omron o libre), omitiendo comando de control.");
