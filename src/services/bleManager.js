@@ -69,7 +69,6 @@ class BLEService {
   }
 
   async connectToDevice(device) {
-    if (this.isConnecting) return;
     this.isConnecting = true;
 
     try {
