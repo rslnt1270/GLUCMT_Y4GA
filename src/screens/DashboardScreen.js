@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView, PermissionsAndroid, Platform, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, ScrollView, PermissionsAndroid, Platform, Modal, TextInput, InteractionManager } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
@@ -28,28 +28,35 @@ export default function DashboardScreen({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
 
-  // Auto-escanear al abrir el Dashboard
+  // Auto-escanear al abrir el Dashboard, pero OPTIMIZADO para no trabar el inicio
   useEffect(() => {
     const autoScan = async () => {
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.requestMultiple([
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-          PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-        ]);
-        if (granted['android.permission.ACCESS_FINE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("Falta permiso de ubicación para auto-escanear");
-          return;
+      try {
+        if (Platform.OS === 'android') {
+          // Solo pedimos permisos una vez que la UI ya fluye
+          const granted = await PermissionsAndroid.requestMultiple([
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+          ]);
+          if (granted['android.permission.ACCESS_FINE_LOCATION'] !== PermissionsAndroid.RESULTS.GRANTED) {
+            console.log("Falta permiso de ubicación para auto-escanear");
+            return;
+          }
         }
+        console.log("Iniciando escaneo automático en segundo plano desde el Dashboard...");
+        bleService.scanAndConnect();
+      } catch (err) {
+        console.log("Error silencioso al autoescanear", err);
       }
-      console.log("Iniciando escaneo automático en segundo plano desde el Dashboard...");
-      bleService.scanAndConnect();
     };
     
-    // Lo ejecutamos con un ligero retraso para no trabar la animación de UI inicial
-    setTimeout(() => {
+    // InteractionManager asegura que esto se ejecute SOLO cuando el celular haya terminado
+    // de cargar todas las vistas, botones, transiciones y animaciones del arranque.
+    // Esto quita la carga pesada del hilo principal durante el primer segundo.
+    InteractionManager.runAfterInteractions(() => {
       autoScan();
-    }, 1000);
+    });
   }, []);
 
   useEffect(() => {
