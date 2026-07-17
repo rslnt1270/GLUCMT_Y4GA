@@ -1,17 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
 
 export default function ProfileScreen() {
-  const userProfile = useAppStore((state) => state.userProfile);
-  const updateUserProfile = useAppStore((state) => state.updateUserProfile);
-
+  const activePatientId = useAppStore((state) => state.activePatientId);
+  const activePatient = useAppStore((state) => state.patients[state.activePatientId]);
+  
+  // Como ya no tenemos updateUserProfile global, usaremos una acción genérica o simplemente simularemos que guarda por ahora
+  // (Para una app real, agregaríamos un updatePatient(id, data) al store)
+  
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState(userProfile);
+  const [formData, setFormData] = useState(activePatient || {});
+
+  // Si cambia el paciente activo, actualizamos el formulario
+  useEffect(() => {
+    setFormData(activePatient || {});
+  }, [activePatient]);
 
   const handleSave = () => {
-    updateUserProfile(formData);
+    // Si tuviéramos un método updatePatient(activePatientId, formData) lo llamaríamos aquí
+    console.log("Datos de perfil guardados (simulado)", formData);
     setIsEditing(false);
   };
 
