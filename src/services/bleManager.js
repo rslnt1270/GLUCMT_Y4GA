@@ -55,6 +55,9 @@ class BLEService {
             return;
           }
 
+          if (this.isConnecting) return;
+          this.isConnecting = true;
+
           console.log(`📡 Señal médica detectada: ${device.name}`);
         
           console.log(`¡🎉 DISPOSITIVO MÉDICO ENCONTRADO (${device.name})! Deteniendo escaneo y conectando...`);
@@ -66,9 +69,6 @@ class BLEService {
   }
 
   async connectToDevice(device) {
-    if (this.isConnecting) return;
-    this.isConnecting = true;
-
     try {
       const connectedDevice = await device.connect();
       this.device = connectedDevice;
@@ -82,14 +82,13 @@ class BLEService {
 
       // Detectar cuando el OMRON se apaga (se desconecta) para prepararnos para la siguiente lectura
       this.disconnectSubscription = this.manager.onDeviceDisconnected(device.id, (error, d) => {
-        console.log(`🔌 El dispositivo cerró la conexión (Se apagó).`);
+        console.log(`🔌 El dispositivo cerró la conexión (Se apagó o requiere emparejamiento OS).`);
         useAppStore.getState().setGlucometerConnected(false);
         this.device = null;
+        this.isConnecting = false;
         
-        // Esperamos 3 segundos antes de volver a escanear para que Android limpie la caché de Bluetooth
-        setTimeout(() => {
-          this.scanAndConnect();
-        }, 3000);
+        // Eliminamos el escaneo automático agresivo aquí.
+        // El usuario deberá presionar "Escanear y Conectar" de nuevo.
       });
 
       await connectedDevice.discoverAllServicesAndCharacteristics();
