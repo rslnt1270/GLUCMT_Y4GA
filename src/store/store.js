@@ -111,11 +111,7 @@ export const useAppStore = create(
       isGlucometerConnected: false,
       setGlucometerConnected: (status) => set({ isGlucometerConnected: status }),
 
-      // Estado de Alarmas y Medicamentos (Por simplicidad, los dejamos globales o se podrían migrar)
-      nextAlarmTime: null,
-      setNextAlarmTime: (time) => set({ nextAlarmTime: time }),
-
-      // Estado de Medicamentos
+      // Estado de Medicamentos (global al teléfono; se podría migrar a por-paciente)
       medications: [
         { id: '1', name: 'Metformina 850mg', frequency: 'Cada 12 horas', nextDose: '20:00', takenToday: false },
         { id: '2', name: 'Losartán 50mg', frequency: 'Cada 24 horas', nextDose: '08:00', takenToday: true }
@@ -190,7 +186,7 @@ export const useAppStore = create(
       version: 1,
       // No persistir estado efímero de hardware/sesión
       partialize: (state) => {
-        const { isGlucometerConnected, nextAlarmTime, ...persisted } = state;
+        const { isGlucometerConnected, ...persisted } = state;
         return persisted;
       },
     }

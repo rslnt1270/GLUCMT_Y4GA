@@ -101,13 +101,15 @@ export async function exportReport({ patient, profile, rangeDays, format }) {
     const { uri } = await Print.printToFileAsync({ html });
     mimeType = 'application/pdf';
     UTI = 'com.adobe.pdf';
-    // Renombrar el archivo temporal para que el PDF compartido tenga un nombre legible
+    // Renombrar el archivo temporal para que el PDF compartido tenga un nombre legible.
+    // move() es asíncrono en la API de expo-file-system de SDK 57; sin await se
+    // compartiría el destino antes de que existan los bytes.
     try {
       const dest = new File(Paths.cache, `${baseName}.pdf`);
       if (dest.exists) dest.delete();
       const temp = new File(uri);
-      temp.move(dest);
-      fileUri = dest.uri;
+      await temp.move(dest);
+      fileUri = temp.uri;
     } catch {
       fileUri = uri;
     }

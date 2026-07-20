@@ -7,6 +7,7 @@ import PressableScale from '../components/PressableScale';
 
 export default function MedicationScreen({ navigation }) {
   const medications = useAppStore((state) => state.medications);
+  const markMedicationTaken = useAppStore((state) => state.markMedicationTaken);
 
   const renderItem = ({ item, index }) => (
     <FadeSlideIn delay={Math.min(index, 6) * 80}>
@@ -19,6 +20,21 @@ export default function MedicationScreen({ navigation }) {
           <Text style={styles.medDose}>{item.dose}</Text>
           <Text style={styles.medFrequency}>🕒 {item.frequency}</Text>
         </View>
+        {item.takenToday ? (
+          <View style={styles.takenBadge}>
+            <Text style={styles.takenBadgeText}>✅ Tomada hoy</Text>
+          </View>
+        ) : (
+          <PressableScale
+            style={styles.takeButton}
+            onPress={() => markMedicationTaken(item.id)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <View style={styles.takeButtonInner}>
+              <Text style={styles.takeButtonText}>Marcar ✓</Text>
+            </View>
+          </PressableScale>
+        )}
       </View>
     </FadeSlideIn>
   );
@@ -127,6 +143,33 @@ const styles = StyleSheet.create({
   medFrequency: {
     fontSize: 14,
     color: '#64748B',
+  },
+  takenBadge: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginLeft: 10,
+  },
+  takenBadgeText: {
+    color: '#15803D',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  takeButton: {
+    marginLeft: 10,
+    borderRadius: 12,
+  },
+  takeButtonInner: {
+    backgroundColor: '#0575E6',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  takeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
   },
   emptyContainer: {
     flex: 1,
