@@ -21,6 +21,12 @@ export default function DashboardScreen({ navigation }) {
   const lastInsulin = activePatient.lastInsulinDose || '--';
   const lastBP = activePatient.lastBloodPressure;
   const isConnected = useAppStore((state) => state.isGlucometerConnected);
+  const resetMedicationsIfNewDay = useAppStore((state) => state.resetMedicationsIfNewDay);
+
+  // Al abrir la app en un nuevo día, desmarcar los medicamentos "tomados hoy"
+  useEffect(() => {
+    resetMedicationsIfNewDay();
+  }, [resetMedicationsIfNewDay]);
 
   // Micro-animación (efecto de "respiración" suave)
   const pulseAnim = useRef(new Animated.Value(1)).current;

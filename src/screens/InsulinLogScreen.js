@@ -1,32 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-// import { collection, addDoc } from 'firebase/firestore';
-// import { db } from '../services/firebaseConfig';
+import { useAppStore } from '../store/store';
 
 export default function InsulinLogScreen({ navigation }) {
   const [dose, setDose] = useState('');
+  const setLastInsulinDose = useAppStore((state) => state.setLastInsulinDose);
 
-  const handleSave = async () => {
-    if (!dose || isNaN(dose)) {
+  const handleSave = () => {
+    const units = parseInt(dose, 10);
+    if (!dose || isNaN(units) || units <= 0) {
       Alert.alert('Error', 'Por favor ingresa un número válido de unidades.');
       return;
     }
 
-    try {
-      /* 
-      // Código de conexión a base de datos (Comentado hasta configurar credenciales)
-      await addDoc(collection(db, 'insulin_logs'), {
-        units: parseInt(dose, 10),
-        timestamp: new Date().toISOString(),
-      });
-      */
-      Alert.alert('Éxito', `Has registrado ${dose} unidades de insulina exitosamente.`);
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar el registro.');
-      console.error(error);
-    }
+    setLastInsulinDose(units);
+    Alert.alert(
+      'Dosis registrada',
+      `${units} unidades agregadas a la toma actual. Guárdala desde el inicio con "Guardar Toma Completa".`
+    );
+    navigation.goBack();
   };
 
   return (

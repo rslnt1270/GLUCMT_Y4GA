@@ -1,6 +1,5 @@
 import { BleManager } from 'react-native-ble-plx';
 import { useAppStore } from '../store/store';
-import { saveReadingToCloud } from './firebaseConfig';
 
 // UUIDs estándar mundial (Bluetooth SIG)
 const GLUCOSE_SERVICE_UUID = '00001808-0000-1000-8000-00805f9b34fb';
@@ -189,7 +188,6 @@ class BLEService {
               if (finalValue > 0 && finalValue < 1000) {
                 console.log(`¡LECTURA DE GLUCOSA DESCIFRADA! Nivel: ${finalValue} mg/dL`);
                 useAppStore.getState().setLastGlucoseReading(finalValue);
-                // Si Firebase estuviera activo: saveReadingToCloud('GLUCOSE', { value: finalValue });
               }
             }
           } catch (e) {
