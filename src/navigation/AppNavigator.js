@@ -31,7 +31,11 @@ function HomeStack() {
           backgroundColor: '#FFFFFF',
         },
         headerShadowVisible: false,
-        animation: 'fade_from_bottom',
+        // Transición consistente en todo el stack: deslizamiento nativo desde la derecha
+        animation: 'slide_from_right',
+        animationDuration: 280,
+        // Congela la pantalla anterior mientras no es visible (fluidez y menos trabajo de render)
+        freezeOnBlur: true,
       }}
     >
       <Stack.Screen name="Dashboard" component={DashboardScreen} options={{ headerShown: false }} />
@@ -50,6 +54,8 @@ export default function AppNavigator() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
+          // Transición sutil al cambiar de pestaña (soportado por bottom-tabs v7)
+          animation: 'shift',
           tabBarActiveTintColor: '#0575E6',
           tabBarInactiveTintColor: '#94A3B8',
           tabBarStyle: {

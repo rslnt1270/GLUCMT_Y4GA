@@ -5,6 +5,8 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { useAppStore } from '../store/store';
 import { exportReport } from '../services/reportGenerator';
 import { getLocalDateKey, recordDateKey } from '../utils/dates';
+import FadeSlideIn from '../components/FadeSlideIn';
+import PressableScale from '../components/PressableScale';
 
 // Configurar calendario en español
 LocaleConfig.locales['es'] = {
@@ -77,10 +79,10 @@ export default function HistoryScreen() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={styles.header}>
+        <FadeSlideIn style={styles.header}>
           <Text style={styles.title}>Historial Médico de {activePatient.name}</Text>
           <Text style={styles.subtitle}>Selecciona un día para ver los registros</Text>
-          <TouchableOpacity
+          <PressableScale
             style={styles.exportButton}
             activeOpacity={0.85}
             onPress={() => setExportModalVisible(true)}
@@ -88,8 +90,8 @@ export default function HistoryScreen() {
             <LinearGradient colors={['#0575E6', '#021B79']} style={styles.exportGradient}>
               <Text style={styles.exportButtonText}>📄 Exportar Reporte</Text>
             </LinearGradient>
-          </TouchableOpacity>
-        </View>
+          </PressableScale>
+        </FadeSlideIn>
 
         {/* Modal de exportación: período + formato */}
         <Modal
@@ -156,7 +158,7 @@ export default function HistoryScreen() {
           </View>
         </Modal>
 
-        <View style={styles.calendarContainer}>
+        <FadeSlideIn delay={120} style={styles.calendarContainer}>
           <Calendar
             onDayPress={(day) => {
               setSelectedDate(day.dateString);
@@ -184,7 +186,7 @@ export default function HistoryScreen() {
               textDayHeaderFontSize: 14
             }}
           />
-        </View>
+        </FadeSlideIn>
 
         <ScrollView contentContainerStyle={styles.detailsContainer}>
           {selectedDate ? (
@@ -199,7 +201,8 @@ export default function HistoryScreen() {
                   const snap = record.fullSnapshot || { glucose: record.value }; // Retrocompatibilidad
                   
                   return (
-                    <View key={`combo-${index}`} style={styles.comboCard}>
+                    // La key incluye la fecha para que las tarjetas re-animen su entrada al cambiar de día
+                    <FadeSlideIn key={`combo-${selectedDate}-${index}`} delay={Math.min(index, 6) * 80} distance={16} style={styles.comboCard}>
                       <View style={styles.comboHeader}>
                         <Text style={styles.comboTime}>{timeString}</Text>
                         <Text style={styles.comboBadge}>Toma Registrada</Text>
@@ -239,7 +242,7 @@ export default function HistoryScreen() {
                           <Text style={styles.historyItemValue}>✓</Text>
                         </View>
                       )}
-                    </View>
+                    </FadeSlideIn>
                   );
                 })
               ) : (

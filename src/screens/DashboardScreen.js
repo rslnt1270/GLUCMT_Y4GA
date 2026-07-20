@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
 import { bleService } from '../services/bleManager';
+import PressableScale from '../components/PressableScale';
 
 export default function DashboardScreen({ navigation }) {
   const activePatientId = useAppStore((state) => state.activePatientId);
@@ -33,6 +34,41 @@ export default function DashboardScreen({ navigation }) {
   // Motion Graphics: Animación de entrada limpia
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
+  // Realce sutil cuando llega una lectura nueva
+  const glucoseHighlight = useRef(new Animated.Value(1)).current;
+  const bpHighlight = useRef(new Animated.Value(1)).current;
+  const isFirstGlucose = useRef(true);
+  const isFirstBP = useRef(true);
+
+  // Pulso de realce reutilizable: scale up y de vuelta (solo transform, hilo nativo)
+  const runHighlightPulse = (animatedValue) => {
+    Animated.sequence([
+      Animated.spring(animatedValue, { toValue: 1.15, friction: 4, tension: 120, useNativeDriver: true }),
+      Animated.spring(animatedValue, { toValue: 1, friction: 5, tension: 80, useNativeDriver: true }),
+    ]).start();
+  };
+
+  // Al llegar una lectura nueva de glucosa, pulso sutil del valor
+  useEffect(() => {
+    if (isFirstGlucose.current) {
+      isFirstGlucose.current = false;
+      return;
+    }
+    if (activePatient.lastGlucoseReading) {
+      runHighlightPulse(glucoseHighlight);
+    }
+  }, [activePatient.lastGlucoseReading]);
+
+  // Al llegar una lectura nueva de presión arterial, pulso sutil del orbe
+  useEffect(() => {
+    if (isFirstBP.current) {
+      isFirstBP.current = false;
+      return;
+    }
+    if (lastBP) {
+      runHighlightPulse(bpHighlight);
+    }
+  }, [lastBP]);
 
   // Auto-escanear al abrir el Dashboard, pero OPTIMIZADO para no trabar el inicio
   useEffect(() => {
@@ -99,8 +135,10 @@ export default function DashboardScreen({ navigation }) {
                 <Text style={styles.greeting}>Hola, {activePatient.name}</Text>
                 <Text style={styles.subtitle}>Tu salud está bajo control.</Text>
               </View>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={{ backgroundColor: '#E2E8F0', padding: 8, borderRadius: 20 }}
+                activeOpacity={0.8}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 onPress={() => setModalVisible(true)}
               >
                 <Text style={{ fontWeight: 'bold', color: '#0575E6' }}>Cambiar Perfil 👥</Text>
@@ -170,9 +208,9 @@ export default function DashboardScreen({ navigation }) {
                 style={styles.orbGradient}
               >
                 <Text style={styles.orbLabel}>PRESIÓN ARTERIAL</Text>
-                <Text style={styles.orbValue}>
+                <Animated.Text style={[styles.orbValue, { transform: [{ scale: bpHighlight }] }]}>
                   {lastBP ? `${lastBP.sys}/${lastBP.dia}` : '--/--'}
-                </Text>
+                </Animated.Text>
                 <Text style={styles.orbUnit}>mmHg</Text>
               </LinearGradient>
             </Animated.View>
@@ -184,7 +222,9 @@ export default function DashboardScreen({ navigation }) {
           <View style={styles.cardsRow}>
             <View style={styles.glassCard}>
               <Text style={styles.cardLabel}>Glucosa</Text>
-              <Text style={styles.cardValue}>{lastGlucose} <Text style={styles.unitSmall}>mg/dL</Text></Text>
+              <Animated.Text style={[styles.cardValue, { transform: [{ scale: glucoseHighlight }] }]}>
+                {lastGlucose} <Text style={styles.unitSmall}>mg/dL</Text>
+              </Animated.Text>
             </View>
             <View style={styles.glassCard}>
               <Text style={styles.cardLabel}>Insulina</Text>
@@ -194,20 +234,25 @@ export default function DashboardScreen({ navigation }) {
 
           {hasPendingData && (
             <View style={styles.comboActionContainer}>
-              <TouchableOpacity style={styles.comboBtnSave} onPress={saveComplete}>
+              <PressableScale style={styles.comboBtnSave} onPress={saveComplete}>
                 <LinearGradient colors={['#00F260', '#0575E6']} style={styles.comboGradient}>
                   <Text style={styles.comboBtnText}>✅ GUARDAR TOMA COMPLETA</Text>
                 </LinearGradient>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.comboBtnClear} onPress={clearAll}>
+              </PressableScale>
+              <TouchableOpacity
+                style={styles.comboBtnClear}
+                activeOpacity={0.8}
+                hitSlop={{ top: 8, bottom: 8, left: 16, right: 16 }}
+                onPress={clearAll}
+              >
                 <Text style={styles.comboBtnClearText}>Descartar</Text>
               </TouchableOpacity>
             </View>
           )}
 
           <View style={styles.actionContainer}>
-            <TouchableOpacity 
-              style={[styles.actionButton, { flex: 1, marginRight: 8 }]} 
+            <PressableScale
+              style={[styles.actionButton, { flex: 1, marginRight: 8 }]}
               activeOpacity={0.8}
               onPress={() => navigation.navigate('InsulinLog')}
             >
@@ -219,10 +264,10 @@ export default function DashboardScreen({ navigation }) {
               >
                 <Text style={styles.actionText}>💉 Insulina</Text>
               </LinearGradient>
-            </TouchableOpacity>
+            </PressableScale>
 
-            <TouchableOpacity 
-              style={[styles.actionButton, { flex: 1, marginLeft: 8 }]} 
+            <PressableScale
+              style={[styles.actionButton, { flex: 1, marginLeft: 8 }]}
               activeOpacity={0.8}
               onPress={() => navigation.navigate('Medications')}
             >
@@ -234,7 +279,7 @@ export default function DashboardScreen({ navigation }) {
               >
                 <Text style={styles.actionText}>💊 Pastillas</Text>
               </LinearGradient>
-            </TouchableOpacity>
+            </PressableScale>
           </View>
         </Animated.ScrollView>
       </SafeAreaView>

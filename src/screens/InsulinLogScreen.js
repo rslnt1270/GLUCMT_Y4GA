@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, SafeAreaView, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
+import FadeSlideIn from '../components/FadeSlideIn';
+import PressableScale from '../components/PressableScale';
 
 export default function InsulinLogScreen({ navigation }) {
   const [dose, setDose] = useState('');
@@ -25,13 +27,13 @@ export default function InsulinLogScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={styles.header}>
+        <FadeSlideIn style={styles.header}>
           <Text style={styles.title}>Registrar Insulina</Text>
           <Text style={styles.subtitle}>¿Cuántas unidades te inyectaste?</Text>
-        </View>
+        </FadeSlideIn>
 
         <View style={styles.inputSection}>
-          <View style={styles.inputWrapper}>
+          <FadeSlideIn delay={100} style={styles.inputWrapper}>
             <TextInput
               style={styles.input}
               keyboardType="numeric"
@@ -42,14 +44,16 @@ export default function InsulinLogScreen({ navigation }) {
               maxLength={3}
             />
             <Text style={styles.unitText}>Unidades</Text>
-          </View>
+          </FadeSlideIn>
         </View>
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
-            <Text style={styles.saveButtonText}>💾 Guardar Registro</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <FadeSlideIn delay={200}>
+          <PressableScale style={styles.saveButton} onPress={handleSave}>
+            <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
+              <Text style={styles.saveButtonText}>💾 Guardar Registro</Text>
+            </LinearGradient>
+          </PressableScale>
+        </FadeSlideIn>
       </SafeAreaView>
     </View>
   );

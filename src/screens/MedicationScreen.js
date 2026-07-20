@@ -1,31 +1,35 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, SafeAreaView } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
+import FadeSlideIn from '../components/FadeSlideIn';
+import PressableScale from '../components/PressableScale';
 
 export default function MedicationScreen({ navigation }) {
   const medications = useAppStore((state) => state.medications);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.medCard}>
-      <View style={styles.medIconContainer}>
-        <Text style={styles.medIcon}>💊</Text>
+  const renderItem = ({ item, index }) => (
+    <FadeSlideIn delay={Math.min(index, 6) * 80}>
+      <View style={styles.medCard}>
+        <View style={styles.medIconContainer}>
+          <Text style={styles.medIcon}>💊</Text>
+        </View>
+        <View style={styles.medInfo}>
+          <Text style={styles.medName}>{item.name}</Text>
+          <Text style={styles.medDose}>{item.dose}</Text>
+          <Text style={styles.medFrequency}>🕒 {item.frequency}</Text>
+        </View>
       </View>
-      <View style={styles.medInfo}>
-        <Text style={styles.medName}>{item.name}</Text>
-        <Text style={styles.medDose}>{item.dose}</Text>
-        <Text style={styles.medFrequency}>🕒 {item.frequency}</Text>
-      </View>
-    </View>
+    </FadeSlideIn>
   );
 
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={styles.header}>
+        <FadeSlideIn style={styles.header}>
           <Text style={styles.title}>Mis Medicamentos</Text>
           <Text style={styles.subtitle}>Control de dosis y frecuencia</Text>
-        </View>
+        </FadeSlideIn>
 
         {medications.length > 0 ? (
           <FlatList
@@ -35,21 +39,21 @@ export default function MedicationScreen({ navigation }) {
             contentContainerStyle={styles.listContainer}
           />
         ) : (
-          <View style={styles.emptyContainer}>
+          <FadeSlideIn delay={100} style={styles.emptyContainer}>
             <Text style={styles.emptyText}>No tienes medicamentos registrados aún.</Text>
-          </View>
+          </FadeSlideIn>
         )}
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+        <FadeSlideIn delay={150} style={styles.buttonContainer}>
+          <PressableScale
             style={styles.actionButton}
             onPress={() => alert('Próximamente: Añadir Medicamento')}
           >
             <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
               <Text style={styles.buttonText}>➕ Añadir Nuevo Medicamento</Text>
             </LinearGradient>
-          </TouchableOpacity>
-        </View>
+          </PressableScale>
+        </FadeSlideIn>
       </SafeAreaView>
     </View>
   );

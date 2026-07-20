@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, TextInput, Modal, Alert } from 'react-native';
 import { useAppStore } from '../store/store';
+import FadeSlideIn from '../components/FadeSlideIn';
+import PressableScale from '../components/PressableScale';
 
 export default function DietScreen() {
   const dietMeals = useAppStore((state) => state.dietMeals);
@@ -44,36 +46,47 @@ export default function DietScreen() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={styles.header}>
+        <FadeSlideIn style={styles.header}>
           <Text style={styles.title}>Plan de Dieta</Text>
           <Text style={styles.subtitle}>Personaliza tu alimentación saludable</Text>
-        </View>
+        </FadeSlideIn>
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {dietMeals.length === 0 ? (
-            <View style={styles.emptyContainer}>
+            <FadeSlideIn delay={100} style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No hay comidas registradas. ¡Añade tu primer platillo!</Text>
-            </View>
+            </FadeSlideIn>
           ) : (
-            dietMeals.map((meal) => (
-              <View key={meal.id} style={styles.mealCard}>
-                <View style={styles.mealHeader}>
-                  <Text style={styles.mealTitle}>{meal.title}</Text>
-                  <View style={styles.timeActionRow}>
-                    <Text style={styles.mealTime}>{meal.time}</Text>
-                    <TouchableOpacity onPress={() => handleRemove(meal.id)} style={styles.deleteButton}>
-                      <Text style={styles.deleteButtonText}>🗑️</Text>
-                    </TouchableOpacity>
+            dietMeals.map((meal, index) => (
+              <FadeSlideIn key={meal.id} delay={100 + Math.min(index, 6) * 80}>
+                <View style={styles.mealCard}>
+                  <View style={styles.mealHeader}>
+                    <Text style={styles.mealTitle}>{meal.title}</Text>
+                    <View style={styles.timeActionRow}>
+                      <Text style={styles.mealTime}>{meal.time}</Text>
+                      <TouchableOpacity
+                        onPress={() => handleRemove(meal.id)}
+                        style={styles.deleteButton}
+                        activeOpacity={0.8}
+                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      >
+                        <Text style={styles.deleteButtonText}>🗑️</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
+                  <Text style={styles.mealDesc}>{meal.description}</Text>
                 </View>
-                <Text style={styles.mealDesc}>{meal.description}</Text>
-              </View>
+              </FadeSlideIn>
             ))
           )}
 
-          <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
-            <Text style={styles.addButtonText}>➕ Añadir Comida / Colación</Text>
-          </TouchableOpacity>
+          <FadeSlideIn delay={200}>
+            <PressableScale style={styles.addButton} onPress={() => setModalVisible(true)}>
+              <View style={styles.addButtonInner}>
+                <Text style={styles.addButtonText}>➕ Añadir Comida / Colación</Text>
+              </View>
+            </PressableScale>
+          </FadeSlideIn>
         </ScrollView>
 
         <Modal
@@ -115,10 +128,10 @@ export default function DietScreen() {
               />
 
               <View style={styles.modalActions}>
-                <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+                <TouchableOpacity style={styles.cancelButton} activeOpacity={0.8} onPress={() => setModalVisible(false)}>
                   <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveButton} onPress={handleSaveMeal}>
+                <TouchableOpacity style={styles.saveButton} activeOpacity={0.8} onPress={handleSaveMeal}>
                   <Text style={styles.saveButtonText}>Guardar</Text>
                 </TouchableOpacity>
               </View>
@@ -219,14 +232,16 @@ const styles = StyleSheet.create({
   addButton: {
     backgroundColor: '#0575E6',
     borderRadius: 15,
-    paddingVertical: 18,
-    alignItems: 'center',
     marginTop: 10,
     shadowColor: '#0575E6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
+  },
+  addButtonInner: {
+    paddingVertical: 18,
+    alignItems: 'center',
   },
   addButtonText: {
     color: '#FFFFFF',
