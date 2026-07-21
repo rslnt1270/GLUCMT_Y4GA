@@ -1,44 +1,39 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, SafeAreaView, Alert } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-// import { collection, addDoc } from 'firebase/firestore';
-// import { db } from '../services/firebaseConfig';
+import { useAppStore } from '../store/store';
+import FadeSlideIn from '../components/FadeSlideIn';
+import PressableScale from '../components/PressableScale';
 
 export default function InsulinLogScreen({ navigation }) {
   const [dose, setDose] = useState('');
+  const setLastInsulinDose = useAppStore((state) => state.setLastInsulinDose);
 
-  const handleSave = async () => {
-    if (!dose || isNaN(dose)) {
+  const handleSave = () => {
+    const units = parseInt(dose, 10);
+    if (!dose || isNaN(units) || units <= 0) {
       Alert.alert('Error', 'Por favor ingresa un número válido de unidades.');
       return;
     }
 
-    try {
-      /* 
-      // Código de conexión a base de datos (Comentado hasta configurar credenciales)
-      await addDoc(collection(db, 'insulin_logs'), {
-        units: parseInt(dose, 10),
-        timestamp: new Date().toISOString(),
-      });
-      */
-      Alert.alert('Éxito', `Has registrado ${dose} unidades de insulina exitosamente.`);
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar el registro.');
-      console.error(error);
-    }
+    setLastInsulinDose(units);
+    Alert.alert(
+      'Dosis registrada',
+      `${units} unidades agregadas a la toma actual. Guárdala desde el inicio con "Guardar Toma Completa".`
+    );
+    navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={styles.header}>
+        <FadeSlideIn style={styles.header}>
           <Text style={styles.title}>Registrar Insulina</Text>
           <Text style={styles.subtitle}>¿Cuántas unidades te inyectaste?</Text>
-        </View>
+        </FadeSlideIn>
 
         <View style={styles.inputSection}>
-          <View style={styles.inputWrapper}>
+          <FadeSlideIn delay={100} style={styles.inputWrapper}>
             <TextInput
               style={styles.input}
               keyboardType="numeric"
@@ -49,14 +44,16 @@ export default function InsulinLogScreen({ navigation }) {
               maxLength={3}
             />
             <Text style={styles.unitText}>Unidades</Text>
-          </View>
+          </FadeSlideIn>
         </View>
 
-        <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
-            <Text style={styles.saveButtonText}>💾 Guardar Registro</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <FadeSlideIn delay={200}>
+          <PressableScale style={styles.saveButton} onPress={handleSave}>
+            <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
+              <Text style={styles.saveButtonText}>💾 Guardar Registro</Text>
+            </LinearGradient>
+          </PressableScale>
+        </FadeSlideIn>
       </SafeAreaView>
     </View>
   );

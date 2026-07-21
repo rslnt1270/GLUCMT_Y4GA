@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
+import FadeSlideIn from '../components/FadeSlideIn';
+import PressableScale from '../components/PressableScale';
 
 export default function ProfileScreen() {
   const activePatientId = useAppStore((state) => state.activePatientId);
@@ -46,53 +48,59 @@ export default function ProfileScreen() {
           style={{ flex: 1 }} 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <View style={styles.header}>
+          <FadeSlideIn style={styles.header}>
             <Text style={styles.title}>Perfil Médico</Text>
             <Text style={styles.subtitle}>Ficha clínica y de emergencia</Text>
-          </View>
+          </FadeSlideIn>
 
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-            
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>👤 Datos Personales</Text>
-              </View>
-              {renderInput('Nombre Completo', 'name', 'Ej. Juan Pérez')}
-              {renderInput('Edad', 'age', 'Ej. 65', 'numeric')}
-              {renderInput('Peso (kg)', 'weight', 'Ej. 75', 'numeric')}
-            </View>
 
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>⚕️ Historial Clínico</Text>
+            <FadeSlideIn delay={80}>
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>👤 Datos Personales</Text>
+                </View>
+                {renderInput('Nombre Completo', 'name', 'Ej. Juan Pérez')}
+                {renderInput('Edad', 'age', 'Ej. 65', 'numeric')}
+                {renderInput('Peso (kg)', 'weight', 'Ej. 75', 'numeric')}
               </View>
-              {renderInput('Tipo de Diabetes', 'diabetesType', 'Ej. Tipo 2, Tipo 1...')}
-              {renderInput('Tipo de Sangre', 'bloodType', 'Ej. O+')}
-              {renderInput('Alergias Conocidas', 'allergies', 'Ej. Penicilina, Ninguna')}
-            </View>
+            </FadeSlideIn>
 
-            <View style={styles.card}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.cardTitle}>🚨 Contacto de Emergencia</Text>
+            <FadeSlideIn delay={160}>
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>⚕️ Historial Clínico</Text>
+                </View>
+                {renderInput('Tipo de Diabetes', 'diabetesType', 'Ej. Tipo 2, Tipo 1...')}
+                {renderInput('Tipo de Sangre', 'bloodType', 'Ej. O+')}
+                {renderInput('Alergias Conocidas', 'allergies', 'Ej. Penicilina, Ninguna')}
               </View>
-              {renderInput('Teléfono de Familiar', 'emergencyContact', 'Ej. 55 1234 5678', 'phone-pad')}
-            </View>
+            </FadeSlideIn>
 
-            <View style={styles.buttonContainer}>
+            <FadeSlideIn delay={240}>
+              <View style={styles.card}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.cardTitle}>🚨 Contacto de Emergencia</Text>
+                </View>
+                {renderInput('Teléfono de Familiar', 'emergencyContact', 'Ej. 55 1234 5678', 'phone-pad')}
+              </View>
+            </FadeSlideIn>
+
+            <FadeSlideIn delay={320} style={styles.buttonContainer}>
               {isEditing ? (
-                <TouchableOpacity style={styles.actionButton} onPress={handleSave}>
+                <PressableScale style={styles.actionButton} onPress={handleSave}>
                   <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
                     <Text style={styles.actionText}>💾 Guardar Cambios</Text>
                   </LinearGradient>
-                </TouchableOpacity>
+                </PressableScale>
               ) : (
-                <TouchableOpacity style={styles.actionButton} onPress={() => setIsEditing(true)}>
+                <PressableScale style={styles.actionButton} onPress={() => setIsEditing(true)}>
                   <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
                     <Text style={styles.actionText}>✏️ Editar Perfil</Text>
                   </LinearGradient>
-                </TouchableOpacity>
+                </PressableScale>
               )}
-            </View>
+            </FadeSlideIn>
 
           </ScrollView>
         </KeyboardAvoidingView>

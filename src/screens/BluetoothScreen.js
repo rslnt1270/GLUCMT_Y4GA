@@ -1,9 +1,11 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
+import { View, Text, StyleSheet, PermissionsAndroid, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAppStore } from '../store/store';
 import { bleService } from '../services/bleManager';
+import FadeSlideIn from '../components/FadeSlideIn';
+import PressableScale from '../components/PressableScale';
 
 export default function BluetoothScreen() {
   const isConnected = useAppStore((state) => state.isGlucometerConnected);
@@ -32,33 +34,35 @@ export default function BluetoothScreen() {
   return (
     <View style={styles.container}>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-      <View style={styles.header}>
+      <FadeSlideIn style={styles.header}>
         <Text style={styles.title}>Vincular Dispositivos Médicos</Text>
         <Text style={styles.subtitle}>Conecta tus dispositivos vía Bluetooth</Text>
-      </View>
+      </FadeSlideIn>
 
-      <View style={styles.statusContainer}>
+      <FadeSlideIn delay={120} style={styles.statusContainer}>
         <View style={[styles.statusCircle, isConnected ? styles.statusConnected : styles.statusDisconnected]}>
           <Text style={styles.statusIcon}>{isConnected ? '🔗' : '📡'}</Text>
         </View>
         <Text style={styles.statusText}>
           {isConnected ? 'Dispositivo Conectado' : 'Dispositivo Desconectado'}
         </Text>
-      </View>
+      </FadeSlideIn>
 
-      <View style={styles.buttonContainer}>
+      <FadeSlideIn delay={200} style={styles.buttonContainer}>
         {isConnected ? (
-          <TouchableOpacity style={styles.buttonSecondary} onPress={() => setConnected(false)}>
-            <Text style={styles.buttonTextSecondary}>Desconectar</Text>
-          </TouchableOpacity>
+          <PressableScale style={styles.buttonSecondary} onPress={() => setConnected(false)}>
+            <View style={styles.buttonSecondaryInner}>
+              <Text style={styles.buttonTextSecondary}>Desconectar</Text>
+            </View>
+          </PressableScale>
         ) : (
-          <TouchableOpacity style={styles.buttonPrimary} onPress={startRealScan}>
+          <PressableScale style={styles.buttonPrimary} onPress={startRealScan}>
             <LinearGradient colors={['#0575E6', '#021B79']} style={styles.gradient}>
               <Text style={styles.buttonTextPrimary}>Escanear y Conectar</Text>
             </LinearGradient>
-          </TouchableOpacity>
+          </PressableScale>
         )}
-      </View>
+      </FadeSlideIn>
       </SafeAreaView>
     </View>
   );
@@ -145,11 +149,13 @@ const styles = StyleSheet.create({
   },
   buttonSecondary: {
     backgroundColor: '#F1F5F9',
-    paddingVertical: 18,
     borderRadius: 24,
-    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E2E8F0',
+  },
+  buttonSecondaryInner: {
+    paddingVertical: 18,
+    alignItems: 'center',
   },
   buttonTextSecondary: {
     color: '#64748B',
